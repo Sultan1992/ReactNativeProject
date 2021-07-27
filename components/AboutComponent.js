@@ -3,7 +3,7 @@ import { FlatList } from 'react-native';
 import { ScrollView,Text } from 'react-native';
 import { Card } from 'react-native-elements';
 import { ListItem } from 'react-native-elements';
-import {PARTNERS} from "../shared/partners"
+import { PARTNERS } from "../shared/partners";
 
 class About extends Component
 {
