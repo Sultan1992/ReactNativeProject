@@ -193,7 +193,7 @@ const MainNavigator = createDrawerNavigator(
     
     {
         drawerBackgroundColor: '#CEC8FF',
-        contentComponent:CustomDrawerContentComponent
+        ontentComponent:CustomDrawerContentComponent
     }
 );
 const CustomDrawerContentComponent = props => (

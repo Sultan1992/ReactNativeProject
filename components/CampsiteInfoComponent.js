@@ -5,14 +5,13 @@ import { ScrollView, FlatList } from 'react-native';
 
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
-import { comments } from '../redux/comments';
 
 
 
 const mapStateToProps = state => {
     return {
-        campsites: state.partners,
-        comments: state.partners
+        campsites: state.campsites,
+        comments: state.comments
     };
 };
 
@@ -87,7 +86,7 @@ class CampsiteInfo extends Component {
 
     render() {
         const campsiteId = this.props.navigation.getParam('campsiteId');
-        const campsite = this.props.compsites.campsites.filter(campsite => campsite.id === campsiteId)[0];
+        const campsite = this.props.campsites .campsites.filter(campsite => campsite.id === campsiteId)[0];
         const comments = this.props.comments.comments.filter(comment => comment.campsiteId === campsiteId);
         return (
             <ScrollView>
