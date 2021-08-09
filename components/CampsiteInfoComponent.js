@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Text, View ,Modal,Button,StyleSheet} from 'react-native';
+import { Text, View ,Modal,Button,StyleSheet,Alert, PanResponder} from 'react-native';
 import { Card ,Icon,Rating,Input} from 'react-native-elements';
 import { ScrollView, FlatList } from 'react-native';
 import { postComment, postFavorite } from '../redux/ActionCreators';
+import * as Animatable from 'react-native-animatable';
 
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -22,15 +23,65 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = {
     postFavorite: campsiteId => (postFavorite(campsiteId)),
-    postComment:comment=>(postComment(campsiteId,rating,Auther,text))
+    postComment:(campsiteId,rating,Auther,text)=>(postComment(campsiteId,rating,Auther,text))
 };
 
 function RenderCampsite(props)
 {
-    const {campsite} = props;
+    const { campsite } = props;
+    const view = React.createRef();
+
+    const recognizeDrag = ({ dx }) => (dx < -200) ? true : false;
+    const  recognizeComment = ({ dx }) => (dx < 200) ? false :true;
+  
+    const panResponder = PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onPanResponderGrant: () => {
+            view.current.rubberBand(1000)
+            .then(endState => console.log(endState.finished ? 'finished' : 'canceled'));
+        },
+        
+
+        onPanResponderEnd: (e, gestureState) => {
+            console.log('pan responder end', gestureState);
+            if (recognizeDrag(gestureState)) {
+                Alert.alert(
+                    'Add Favorite',
+                    'Are you sure you wish to add ' + campsite.name + ' to favorites?',
+                    [
+                        {
+                            text: 'Cancel',
+                            style: 'cancel',
+                            onPress: () => console.log('Cancel Pressed')
+                        },
+                        {
+                            text: 'OK',
+                            onPress: () => props.favorite ?
+                                console.log('Already set as a favorite') : props.markFavorite()
+                        }
+                    ],
+                    { cancelable: false }
+                );
+            }
+            else if (recognizeComment(gestureState))
+            {
+             props.onShowModal()   
+            }
+
+           
+            return true;
+        }
+
+    });
+
 
     if (campsite) {
         return (
+            <Animatable.View animation='fadeInDown'
+                duration={2000}
+                delay={1000}
+                ref={view}
+                {...panResponder.panHandlers}>
             <Card
                 featuredTitle={campsite.name}
                 image={{uri: baseUrl + campsite.image}}>
@@ -57,7 +108,8 @@ function RenderCampsite(props)
                     onPress={() => props.onShowModal()}
                     />
             </View>
-            </Card>
+                </Card>
+                </Animatable.View>
         );
     }
     return <View />;
@@ -76,13 +128,15 @@ function RenderComments({comments}) {
     };
 
     return (
+        <Animatable.View animation='fadeInUp' duration={2000} delay={1000}>
         <Card title='Comments'>
             <FlatList
                 data={comments}
                 renderItem={renderCommentItem}
                 keyExtractor={item => item.id.toString()}
             />
-        </Card>
+            </Card>
+            </Animatable.View>
     );
 }
 
@@ -111,8 +165,10 @@ class CampsiteInfo extends Component {
         this.setState({showModal: !this.state.showModal});
      }
     handleComment(campsiteId)
+    
     {
-       this.postComment(campsiteId)
+     
+       this.props.postComment(campsiteId,this.state.rating,this.state.author,this.state.text)
         this.toggleModal();   
     }
     resetForm() {
@@ -173,7 +229,7 @@ class CampsiteInfo extends Component {
                     <Button
                             onPress={() =>
                             {
-                                this.handleComment();
+                                this.handleComment(campsiteId);
                                 this.resetForm();
                             }}
                             color='#5637DD'

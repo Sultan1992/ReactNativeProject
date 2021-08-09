@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import { Text, View, ScrollView, StyleSheet,
+import { Text, View, StyleSheet,
     Modal, Switch, Button ,Picker} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Animatable from 'react-native-animatable';
+import { Alert } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
 class Reservation extends Component {
 
@@ -27,7 +30,24 @@ class Reservation extends Component {
 
     handleReservation() {
         console.log(JSON.stringify(this.state));
-        this.toggleModal();
+        Alert.alert(
+            'Begin Search?',
+                'Numbers of Campers' + this.state.campers + '\n' +
+            'Hike In?' + this.state.hikeIn + '\n' +
+            'Date' + this.state.date.toLocaleDateString(),
+            [
+                {
+        onPress:()=> {this.resetForm()},text: 'Cancel'
+                },
+            {
+                    onPress:()=> {this.resetForm()},  text:'Ok'
+                }
+            ],
+            {
+              cancelable:false
+            }
+                
+        )
        
     }
 
@@ -41,9 +61,14 @@ class Reservation extends Component {
         });
     }
 
-    render() {
+    render()
+    {
         return (
-            <ScrollView>
+        
+            <Animatable.View animation='zoomIn'
+                duration={2000}
+                delay={1000}>
+               
                 <View style={styles.formRow}>
                     <Text style={styles.formLabel}>Number of Campers</Text>
                     <Picker
@@ -58,7 +83,8 @@ class Reservation extends Component {
                         <Picker.Item label='5' value='5' />
                         <Picker.Item label='6' value='6' />
                     </Picker>
-                </View>
+                    </View>
+              
                 <View style={styles.formRow}>
                     <Text style={styles.formLabel}>Hike-In?</Text>
                     <Switch
@@ -67,7 +93,8 @@ class Reservation extends Component {
                         trackColor={{true: '#5637DD', false: null}}
                         onValueChange={value => this.setState({hikeIn: value})}
                     />
-                </View>
+                    </View>
+               
                 <View style={styles.formRow}>
                     <Text style={styles.formLabel}>Date</Text>
                     <Button
@@ -78,7 +105,8 @@ class Reservation extends Component {
                         color='#5637DD'
                         accessibilityLabel='Tap me to select a reservation date'
                     />
-                </View>
+                    </View>
+                 
                 {this.state.showCalendar && (
                     <DateTimePicker
                         value={this.state.date}
@@ -90,6 +118,7 @@ class Reservation extends Component {
                         style={styles.formItem}
                     />
                 )}
+             
                 <View style={styles.formRow}>
                     <Button
                         onPress={() => this.handleReservation()}
@@ -97,40 +126,12 @@ class Reservation extends Component {
                         color='#5637DD'
                         accessibilityLabel='Tap me to search for available campsites to reserve'
                     />
-                </View>
-                <Modal
-                    
-                    animationType={'slide'}
-                    transparent={false}
-                    visible={this.state.showModal}
-                    onRequestClose={() => this.toggleModal()}
-                >
-                    <View style={styles.modal}>
-                        <Text style={styles.modalTitle}>Search Campsite Reservations</Text>
-                        <Text style={styles.modalText}>
-                            Number of Campers: {this.state.campers}
-                        </Text>
-                        <Text style={styles.modalText}>
-                            Hike-In?: {this.state.hikeIn ? 'Yes' : 'No'}
-                        </Text>
-                        <Text style={styles.modalText}>
-                            Date: {this.state.date.toLocaleDateString('en-US')}
-                        </Text>
-                        <Button
-                            onPress={() =>
-                            {
-                                this.toggleModal();
-                                this.resetForm();
-                            }}
-                            color='#5637DD'
-                            backgroundColor='green'
-                            title='Close'
-                        />
                     </View>
-                </Modal>
-
-
-            </ScrollView>
+                
+                
+             
+                </Animatable.View>
+         
         );
     }
 }

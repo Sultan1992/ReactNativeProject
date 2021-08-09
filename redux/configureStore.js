@@ -6,6 +6,18 @@ import { comments } from './comments';
 import { promotions } from './promotions';
 import { partners } from './partners';
 import { favorites } from './favorites';
+import { persistStore, persistCombineReducers } from 'redux-persist';
+import storage from 'redux-persist/es/storage';
+
+
+
+
+
+const config = {
+    key: 'root',
+    storage,
+    debug: true
+}
 
 export const ConfigureStore = () => {
     const store = createStore(
@@ -18,6 +30,7 @@ export const ConfigureStore = () => {
         }),
         applyMiddleware(thunk)
     );
+    const persistor = persistStore(store);
 
-    return store;
+    return { persistor, store };
 }
