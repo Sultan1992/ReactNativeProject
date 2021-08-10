@@ -40,7 +40,11 @@ class Reservation extends Component {
         onPress:()=> {this.resetForm()},text: 'Cancel'
                 },
             {
-                    onPress:()=> {this.resetForm()},  text:'Ok'
+               text: 'Ok', 
+                    onPress: () => {
+                        this.presentLocalNotification(this.state.date.toLocaleDateString('en-US'));
+                        this.resetForm();
+                    }
                 }
             ],
             {
@@ -59,6 +63,33 @@ class Reservation extends Component {
             showCalendar: false,
             showModal: false
         });
+        
+
+    }
+    async presentLocalNotification(date) {
+        function sendNotification() {
+            Notifications.setNotificationHandler({
+                handleNotification: async () => ({
+                    shouldShowAlert: true
+                })
+            });
+
+            Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'Your Campsite Reservation Search',
+                    body: `Search for ${date} requested`
+                },
+                trigger: null
+            });
+        }
+
+        let permissions = await Notifications.getPermissionsAsync();
+        if (!permissions.granted) {
+            permissions = await Notifications.requestPermissionsAsync();
+        }
+        if (permissions.granted) {
+            sendNotification();
+        }
     }
 
     render()
